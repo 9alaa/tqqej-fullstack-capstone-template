@@ -1,64 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {urlConfig} from '../../config';
+import { urlConfig } from '../../config';
 
-function MainPage() {
-    const [gifts, setGifts] = useState([]);
-    const navigate = useNavigate();
+export default function MainPage() {
+  const [gifts, setGifts] = useState([]);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        // Task 1: Write async fetch operation
-        // Write your code below this line
-    }, []);
-
-    // Task 2: Navigate to details page
-    const goToDetailsPage = (productId) => {
-        // Write your code below this line
-
-      };
-
-    // Task 3: Format timestamp
-    const formatDate = (timestamp) => {
-        // Write your code below this line
-      };
-
-    const getConditionClass = (condition) => {
-        return condition === "New" ? "list-group-item-success" : "list-group-item-warning";
+  useEffect(() => {
+    const fetchGifts = async () => {
+      try {
+        const response = await fetch(`${urlConfig.backendUrl}/api/gifts`);
+        if (!response.ok) throw new Error('Unable to load gifts');
+        setGifts(await response.json());
+      } catch (err) {
+        setError(err.message);
+      }
     };
+    fetchGifts();
+  }, []);
 
-    return (
-        <div className="container mt-5">
-            <div className="row">
-                {gifts.map((gift) => (
-                    <div key={gift.id} className="col-md-4 mb-4">
-                        <div className="card product-card">
+  const formatDate = (timestamp) =>
+    timestamp ? new Date(timestamp).toLocaleDateString() : 'Not available';
 
-                            {/* // Task 4: Display gift image or placeholder */}
-                            {/* // Write your code below this line */}
-
-                            <div className="card-body">
-
-                                {/* // Task 5: Display gift image or placeholder */}
-                                {/* // Write your code below this line */}
-
-                                <p className={`card-text ${getConditionClass(gift.condition)}`}>
-                                {gift.condition}
-                                </p>
-
-                                {/* // Task 6: Display gift image or placeholder */}
-                                {/* // Write your code below this line */}
-                                
-
-                                <button onClick={() => goToDetailsPage(gift.id)} className="btn btn-primary">
-                                    View Details
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+  return (
+    <div className="container mt-5">
+      <h1 className="mb-4">Available Gifts</h1>
+      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="row">
+        {gifts.map(gift => (
+          <div key={gift.id || gift._id} className="col-md-4 mb-4">
+            <div className="card product-card h-100">
+              {gift.image ? (
+                <img src={gift.image} alt={gift.name}
+                  className="card-img-top"
+                  style={{ height: 220, objectFit: 'contain' }} />
+              ) : (
+                <div className="p-5 text-center">No Image Available</div>
+              )}
+              <div className="card-body">
+                <h5 className="card-title">{gift.name}</h5>
+                <p className="card-text">{gift.category}</p>
+                <p className="card-text">Condition: {gift.condition}</p>
+                <p className="card-text">
+                  Added: {formatDate(gift.date_added)}
+                </p>
+                <button className="btn btn-primary"
+                  onClick={() => navigate(`/app/gifts/${gift.id}`)}>
+                  View Details
+                </button>
+              </div>
             </div>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
-
-export default MainPage;
