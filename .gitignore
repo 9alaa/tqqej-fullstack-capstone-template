@@ -137,3 +137,10 @@ dist
 node_modules/
 **/node_modules/
 submission/
+
+# Local configuration and generated files
+.env
+**/.env
+**/node_modules/
+**/build/
+submission/

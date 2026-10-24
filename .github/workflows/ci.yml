@@ -1,0 +1,52 @@
+name: GiftLink CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: giftlink-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: node --check app.js
+      - run: node --check models/db.js
+      - run: node --check routes/giftRoutes.js
+      - run: node --check routes/searchRoutes.js
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: giftlink-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: CI=true npm run build
+        env:
+          REACT_APP_BACKEND_URL: http://localhost:3060
+
+  sentiment:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sentiment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: node --check index.js
